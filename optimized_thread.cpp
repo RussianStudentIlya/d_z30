@@ -79,10 +79,6 @@ RequestHandler_2::~RequestHandler_2()
 	this->m_tpool.stop();
 }
 
-res_type RequestHandler_2::push_task(FuncType f, vector<int> arr, long l, long r)
-{
-	return res_type();
-}
 
 res_type RequestHandler_2::push_task(FuncType f, vector<int> arr, long l, long r)
 {

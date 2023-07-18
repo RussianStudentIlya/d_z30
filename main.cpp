@@ -7,7 +7,7 @@ using namespace std;
 bool make_thread = true;
 
 
-void quicksort(vector<int>array, long left, long right)
+void quicksort(vector<int> array, long left, long right)
 {
     if (left >= right) return;
     long left_bound = left;
@@ -47,7 +47,13 @@ void quicksort(vector<int>array, long left, long right)
     }
 }
 
+void getSortedArray(const vector<int> list)
+{
+    for (int item : list)
+        cout << item << " ";
 
+    cout << endl;
+}
 
 int main()
 {
