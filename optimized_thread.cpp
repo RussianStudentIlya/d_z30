@@ -8,7 +8,7 @@ OptimizeThreadPool::OptimizeThreadPool()
 void OptimizeThreadPool::start()
 {
 	//Создаем несколько потоков и помещаем их в  m_threads
-	for (int i = 0; i <= m_thread_count; i++)
+	for (int i = 0; i < m_thread_count; i++)
 	{
 		m_threads.emplace_back(&OptimizeThreadPool::threadFunc, this, i);
 	}
@@ -26,17 +26,14 @@ void OptimizeThreadPool::stop()
 		t.join();
 }
 
-res_type OptimizeThreadPool::push_task(FuncType f, vector<int> arr, long l, long r)
+void OptimizeThreadPool::push_task(FuncType f, vector<int>& vect, long arg1, long arg2)
 {
 	int queue_to_push = m_qindex++ % m_thread_count;//определяем индекс очереди в которую нужно положить задачу
-	task_type task = task_type([=] {f(arr, l, r); });
+	task_type new_task = task_type([&vect, arg1,arg2, f] {f(vect, arg1, arg2); });
 
-	res_type result = task.get_future();
-
-	m_thred_queues[queue_to_push].push(task); // помещаем в очередь
-	return result;
-
+	m_thred_queues[queue_to_push].push(new_task); // помещаем в очередь
 }
+
 
 void OptimizeThreadPool::threadFunc(int qindex)
 {
@@ -55,12 +52,12 @@ void OptimizeThreadPool::threadFunc(int qindex)
 		{
 			m_thred_queues[qindex].pop(task_to_do);
 		}
-		else if (!task_to_do.valid())
+		else if (!task_to_do)
 		{
 			m_thred_queues[(qindex + i) % m_thread_count].push(task_to_do);
 		}
 		/// если кто-то запушил задачу проверяем
-		if(!task_to_do.valid()) // если задача в очереди
+		if(!task_to_do) // если задача в очереди
 		{
 			return;
 		}
@@ -79,8 +76,7 @@ RequestHandler_2::~RequestHandler_2()
 	this->m_tpool.stop();
 }
 
-
-res_type RequestHandler_2::push_task(FuncType f, vector<int> arr, long l, long r)
+void RequestHandler_2::push_task(FuncType f, vector<int>& vect, long arg1, long arg2)
 {
-	return this->m_tpool.push_task(f, arr, l, r);
+	this->m_tpool.push_task(f, vect, arg1, arg2);
 }

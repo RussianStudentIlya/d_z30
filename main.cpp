@@ -1,13 +1,15 @@
 #include <iostream>
-#include <vector>
+//#include "simple_thread.h"
 #include "optimized_thread.h"
+#include <chrono>
 
 using namespace std;
 
-bool make_thread = true;
+mutex coutLocker;
+bool make_thread = false;
 
 
-void quicksort(vector<int> array, long left, long right)
+void quicksort(vector<int>& array, long left, long right)
 {
     if (left >= right) return;
     long left_bound = left;
@@ -31,7 +33,10 @@ void quicksort(vector<int> array, long left, long right)
         }
     } while (left_bound <= right_bound);
 
-    if (make_thread && (right_bound - left > 10000))
+    // запускаем обе части синхронно
+    quicksort(array, left, right_bound);
+    quicksort(array, left_bound, right);
+    /*if (make_thread && (right_bound - left > 10000))
     {
         // если элементов в левой части больше чем 10000
         // вызываем асинхронно рекурсию для правой части
@@ -44,10 +49,10 @@ void quicksort(vector<int> array, long left, long right)
         // запускаем обе части синхронно
         quicksort(array, left, right_bound);
         quicksort(array, left_bound, right);
-    }
+    }*/
 }
 
-void getSortedArray(const vector<int> list)
+void getSortedArray(const vector<int>& list)
 {
     for (int item : list)
         cout << item << " ";
@@ -57,14 +62,20 @@ void getSortedArray(const vector<int> list)
 
 int main()
 {
-    vector<int> arr;
+	//setlocale(LC_ALL, "rus");
+	vector<int> arr;
 
-    for (int i = 0; i <= 300; ++i)
-        arr.push_back(rand() % 500);
+	for (int i = 0; i <= 300; ++i)
+		arr.push_back(rand() % 500);
+
+    getSortedArray(arr);
+
+    cout << "------------------------" << endl;
 
 	RequestHandler_2 rh;
 
-	rh.push_task(quicksort, arr, 0, arr.size() - 1);
+    rh.push_task(quicksort, arr, 0, arr.size() - 1);
 
+    getSortedArray(arr);
 	return 0;
 }
